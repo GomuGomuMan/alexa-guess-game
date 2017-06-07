@@ -96,7 +96,9 @@ var intentHandlers = {
       this.attributes['player'].hasSword = true;
       this.emit(':ask', prompt, reprompt);
     }
-    else if (this.attributes['player'].x === this.attributes['treasure'].x && this.attributes['player'].y === this.attributes['treasure'].y) {
+    else if (this.attributes['player'].x === this.attributes['treasure'].x
+      && this.attributes['player'].y === this.attributes['treasure'].y) {
+
       prompt = 'You have reach the treasure, Congratulations';
       this.emit(':tell', prompt);
     }
@@ -122,10 +124,7 @@ var intentHandlers = {
 function initializeDb() {
   // TODO: Generate traps randomly
 
-  this.attributes['treasure'] = {
-    x: 0,
-    y: 3
-  };
+
 
   // TODO: Create traps static for demo
   this.attributes['traps'] = {
@@ -140,10 +139,15 @@ function initializeDb() {
   }
 
   this.attributes['player'] = {
-    x: 0,
-    y: 0,
+    x: getRandInRange(0, constants.get('room').WIDTH - 1),
+    y: getRandInRange(0, constants.get('room').LENGTH - 1),
     hasSword: false
   }
+
+  this.attributes['treasure'] = {
+    x: constants.get('room').WIDTH - this.attributes['player'].x,
+    y: constants.get('room').LENGTH - this.attributes['player'].y
+  };
 }
 
 function moveDirection() {
