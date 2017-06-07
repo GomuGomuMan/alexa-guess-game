@@ -1,8 +1,6 @@
 const Alexa = require('alexa-sdk');
 const constants = require('./constants');
 
-console.log(constants.get('dynamoDBTableName'));
-
 exports.handler = (event, context, callback) => {
   var alexa = Alexa.handler(event, context);
   alexa.appId = constants.get('appId');
@@ -11,11 +9,6 @@ exports.handler = (event, context, callback) => {
   alexa.registerHandlers(intentHandlers);
   alexa.execute();
 }
-
-var treasureX = 0;
-var treasureY = 3;
-var currentX;
-var currentY;
 
 var intentHandlers = {
   'LaunchRequest': function () {
@@ -52,7 +45,7 @@ var intentHandlers = {
   },
 
   'treasurePosIntent': function() {
-    var prompt = `Treasure is in in grid ${treasureX} ${treasureY} `
+    var prompt = `Treasure is in in grid ${this.attributes['treasure'].x} ${this.attributes['treasure'].y} `
       + 'Where would you like to go next';
     var reprompt = `Where would you like to go next`;
     this.emit(':ask', prompt, reprompt);
@@ -103,7 +96,7 @@ var intentHandlers = {
       this.attributes['player'].hasSword = true;
       this.emit(':ask', prompt, reprompt);
     }
-    else if (this.attributes['player'].x === treasureX && this.attributes['player'].y === treasureY) {
+    else if (this.attributes['player'].x === this.attributes['treasure'].x && this.attributes['player'].y === this.attributes['treasure'].y) {
       prompt = 'You have reach the treasure, Congratulations';
       this.emit(':tell', prompt);
     }
@@ -129,6 +122,10 @@ var intentHandlers = {
 function initializeDb() {
   // TODO: Generate traps randomly
 
+  this.attributes['treasure'] = {
+    x: 0,
+    y: 3
+  };
 
   // TODO: Create traps static for demo
   this.attributes['traps'] = {
@@ -169,18 +166,18 @@ function moveDirection() {
       break;
 
     case 'east':
-      if (this.attributes['player'].x === 4)
+      if (this.attributes['player'].x === constants.get('room').WIDTH - 1)
         isWall = true;
       else
         ++this.attributes['player'].x;
       break;
 
     case 'south':
-      if (this.attributes['player'].y === 4)
+      if (this.attributes['player'].y === constants.get('room').LENGTH - 1)
         isWall = true;
       else
         ++this.attributes['player'].y;
-        break;
+      break;
 
     default:
       break;
