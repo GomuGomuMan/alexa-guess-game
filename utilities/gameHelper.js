@@ -1,6 +1,6 @@
 'use strict';
 
-const math = require('./math.js');
+const math = require('./math');
 const constants = require('../constants');
 
 const gameHelper = function() {
@@ -37,10 +37,51 @@ const gameHelper = function() {
       };
 
       // TODO: How to generate more traps that make sense?
-      this.attributes['traps'] = {
-        x: Math.abs(Math.floor((playerX - this.attributes['treasure'].x) / 2)),
-        y: Math.abs(Math.floor((playerY - this.attributes['treasure'].y) / 2))
-      };
+
+      // this.attributes['traps'] = {
+      //   x: Math.abs(Math.floor((playerX - this.attributes['treasure'].x) / 2)),
+      //   y: Math.abs(Math.floor((playerY - this.attributes['treasure'].y) / 2))
+      // };
+      this.attributes['traps'] = gameHelper.generateTraps.call(this);
+    },
+
+    generateTraps: function() {
+      const treasure = this.attributes['treasure'];
+      const roomWidth = constants.get('room').WIDTH;
+      const roomLength = constants.get('room').LENGTH;
+      var halfWidth = Math.floor(roomWidth / 2);
+      var halfLength = Math.floor(roomLength / 2);
+
+      var traps = [];
+      var trap1 = {};
+      var trap2 = {};
+      var trap3 = {};
+      //TODO: Generate traps in 3 other subfields
+
+      trap1.y = math.getRandInRange(0, halfLength - 1);
+
+      trap2.y = math.getRandInRange(halfLength, roomLength - 1);
+
+      trap3.y = treasure.y < halfLength
+        ? math.getRandInRange(halfLength, roomLength - 1)
+        : math.getRandInRange(0, halfLength - 1);
+
+      if (treasure.x < halfWidth) {
+        trap1.x = math.getRandInRange(halfWidth, roomWidth - 1);
+        trap2.x = math.getRandInRange(halfWidth, roomWidth - 1);
+        trap3.x = math.getRandInRange(0, halfWidth - 1);
+      }
+      else {
+        trap1.x = math.getRandInRange(0, halfWidth - 1);
+        trap2.x = math.getRandInRange(0, halfWidth - 1);
+        trap3.x = math.getRandInRange(halfWidth, roomWidth - 1);
+      }
+
+      traps.push(trap1);
+      traps.push(trap2);
+      traps.push(trap3);
+
+      return traps;
     },
 
     moveDirection: function() {
