@@ -2,6 +2,7 @@
 
 const math = require('./math');
 const constants = require('../constants');
+const utilities = require('./utility');
 
 const gameHelper = function() {
   return {
@@ -19,12 +20,6 @@ const gameHelper = function() {
         hasSword: false
       };
 
-      // Does not solve the problem of making the distance as long as possible
-      // this.attributes['treasure'] = {
-      //   x: constants.get('room').WIDTH - this.attributes['player'].x,
-      //   y: constants.get('room').LENGTH - this.attributes['player'].y
-      // };
-
       // Edge case:
       var halfWidth = Math.floor(constants.get('room').WIDTH / 2);
       var halfLength = Math.floor(constants.get('room').LENGTH / 2);
@@ -37,25 +32,44 @@ const gameHelper = function() {
       };
 
       // TODO: How to generate more traps that make sense?
+      this.attributes['map'] = gameHelper.generateInitialMap();
 
-      // this.attributes['traps'] = {
-      //   x: Math.abs(Math.floor((playerX - this.attributes['treasure'].x) / 2)),
-      //   y: Math.abs(Math.floor((playerY - this.attributes['treasure'].y) / 2))
-      // };
-      this.attributes['traps'] = gameHelper.generateTraps.call(this);
+      var trapCoords = gameHelper.generateTrapsLoc.call(this);
+      gameHelper.populateTraps.call(this, trapCoords);
     },
 
-    generateTraps: function() {
+    populateTraps: function(trapCoords) {
+      var traps = utilities.shuffleArray(constants.get('trap'));
+      trapCoords.forEach((coords, index) => {
+        this.attributes['map'][coords.x][coords.y] = traps[index];
+      });
+      return;
+    },
+
+    generateInitialMap: function() {
+      var map = [];
+      for (var i = 0; i < constants.get('room').WIDTH; ++i) {
+        var row = [];
+        for (var j = 0; j < constants.get('room').LENGTH; ++j) {
+          row.push({});
+        }
+        map.push(row);
+      }
+
+      return map;
+    },
+
+    generateTrapsLoc: function() {
       const treasure = this.attributes['treasure'];
       const roomWidth = constants.get('room').WIDTH;
       const roomLength = constants.get('room').LENGTH;
-      var halfWidth = Math.floor(roomWidth / 2);
-      var halfLength = Math.floor(roomLength / 2);
+      const halfWidth = Math.floor(roomWidth / 2);
+      const halfLength = Math.floor(roomLength / 2);
 
       var traps = [];
-      var trap1 = {};
-      var trap2 = {};
-      var trap3 = {};
+      var trap1 = {},
+        trap2 = {},
+        trap3 = {};
       //TODO: Generate traps in 3 other subfields
 
       trap1.y = math.getRandInRange(0, halfLength - 1);
