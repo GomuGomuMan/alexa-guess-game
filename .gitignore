@@ -1,5 +1,4 @@
 *.zip
 node_modules
 test.js
-constants.js
 bash
