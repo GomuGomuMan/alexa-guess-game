@@ -8,17 +8,19 @@ const gameHelper = function() {
   return {
     initializeDb: function() {
 
-      //TODO: Randomly generate position for sword
-      this.attributes['sword'] = {
-        x: 0,
-        y: 2
-      };
+      // Map
+      this.attributes['map'] = gameHelper.generateInitialMap();
 
+
+      // Player
       this.attributes['player'] = {
         x: math.getRandInRange(0, constants.get('room').WIDTH - 1),
         y: math.getRandInRange(0, constants.get('room').LENGTH - 1),
         hasSword: false
       };
+
+      //TODO: Randomly generate position for sword
+      gameHelper.generateSwordLoc.call(this);
 
       // Edge case:
       var halfWidth = Math.floor(constants.get('room').WIDTH / 2);
@@ -26,15 +28,18 @@ const gameHelper = function() {
       var playerX = this.attributes['player'].x;
       var playerY = this.attributes['player'].y;
 
+      // Treasure
       this.attributes['treasure'] = {
         x: Math.abs(playerX - halfLength),
         y: Math.abs(playerY - halfWidth)
       };
+      gameHelper.populateTreasure.call(this);
 
       // TODO: How to generate more traps that make sense?
-      this.attributes['map'] = gameHelper.generateInitialMap();
 
       var trapCoords = gameHelper.generateTrapsLoc.call(this);
+      console.log(`Treasure coords: ${JSON.stringify(this.attributes['treasure'])}`);
+      console.log(`Trap coords: ${JSON.stringify(trapCoords)}`);
       gameHelper.populateTraps.call(this, trapCoords);
     },
 
@@ -46,12 +51,20 @@ const gameHelper = function() {
       return;
     },
 
+    populateTreasure: function() {
+      const treasureX = this.attributes['treasure'].x;
+      const treasureY = this.attributes['treasure'].y;
+      this.attributes['map'][treasureX][treasureY] = {
+        isTreasure: true
+      };
+    },
+
     generateInitialMap: function() {
       var map = [];
       for (var i = 0; i < constants.get('room').WIDTH; ++i) {
         var row = [];
         for (var j = 0; j < constants.get('room').LENGTH; ++j) {
-          row.push({});
+          row.push(null);
         }
         map.push(row);
       }
@@ -69,7 +82,8 @@ const gameHelper = function() {
       var traps = [];
       var trap1 = {},
         trap2 = {},
-        trap3 = {};
+        trap3 = {},
+        trap4 = {};
       //TODO: Generate traps in 3 other subfields
 
       trap1.y = math.getRandInRange(0, halfLength - 1);
@@ -91,11 +105,42 @@ const gameHelper = function() {
         trap3.x = math.getRandInRange(halfWidth, roomWidth - 1);
       }
 
+      //TODO: Generate a monster that patrols around treasure
+      trap4.x = treasure.x;
+      trap4.y = treasure.y;
+
+      trap4.y = treasure.y + 1 >= roomWidth ? treasure.y - 1 : treasure.y + 1;
+
+
+      // Patrolling monster coords
+      console.log(`Monster coords: ${JSON.stringify(trap4)}`);
+
       traps.push(trap1);
       traps.push(trap2);
       traps.push(trap3);
-
+      traps.push(trap4);
       return traps;
+    },
+
+    generateSwordLoc: function() {
+      var isTaken = true;
+      var x = 0;
+      var y = 0;
+      while (isTaken) {
+        x = math.getRandInRange(0, constants.get('room').WIDTH - 1);
+        y = math.getRandInRange(0, constants.get('room').LENGTH - 1);
+
+        if (!this.attributes['map'][x][y])
+          isTaken = false;
+      }
+
+      this.attributes['map'][x][y] = {
+        type: 'item',
+        name: 'sword'
+      }
+    },
+
+    isWall: function() {
     },
 
     moveDirection: function() {
