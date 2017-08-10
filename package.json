@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/GomuGomuMan/alexa-guess-game/issues"
   },
-  "homepage": "https://github.com/GomuGomuMan/alexa-guess-game#readme"
+  "homepage": "https://github.com/GomuGomuMan/alexa-guess-game#readme",
+  "dependencies": {
+    "@types/node": "^8.0.20",
+    "alexa-sdk": "^1.0.11"
+  }
 }
